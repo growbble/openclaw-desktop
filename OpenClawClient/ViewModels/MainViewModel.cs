@@ -1,6 +1,9 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using OpenClawClient.Models;
 using OpenClawClient.Services;
 
