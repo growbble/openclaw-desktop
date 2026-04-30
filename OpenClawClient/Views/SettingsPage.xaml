@@ -24,7 +24,7 @@
             <!-- Download folder -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBox x:Name="DownloadPathBox" Header="Папка для загрузок" Width="380" IsReadOnly="True" />
-                <Button Content="Обзор..." VerticalAlignment="End" Click="OnBrowseFolder" />
+                <Button Content="Обзор..." Click="OnBrowseFolder" />
             </StackPanel>
 
             <!-- Auto-download options -->
