@@ -87,7 +87,7 @@ cd openclaw-desktop
 3. Выбери платформу: **x64** (или **arm64** на ARM-устройствах)
 4. **Build → Build Solution** (Ctrl+Shift+B)
 
-Готово! `.msix`-пакет появится в:
+Готово! Собранные файлы появятся в:
 ```
 OpenClawClient\bin\x64\Release\net8.0-windows10.0.19041.0\
 ```
@@ -101,6 +101,8 @@ dotnet build OpenClawClient.sln -c Release -p:Platform=x64
 # Release сборка для ARM64
 dotnet build OpenClawClient.sln -c Release -p:Platform=arm64
 ```
+
+> **Примечание:** RuntimeIdentifier `win10-x64/arm64` заменены на `win-x64/arm64` — это стандартные RID .NET 8. Сборка через Visual Studio (F5) также работает напрямую.
 
 ### 5️⃣ Запуск
 
@@ -121,6 +123,7 @@ Add-AppxPackage -Path "OpenClawClient\bin\x64\Release\net8.0-windows10.0.19041.0
 | Проблема | Решение |
 |---|---|
 | `Microsoft.WindowsAppSDK` не найден | Установи Windows App SDK 1.6 через NuGet Package Manager |
+| `NETSDK1083` — RID `win10-x64` не распознан | Замени в .csproj `RuntimeIdentifiers` на `win-x64;win-arm64` (уже исправлено) |
 | `MSB3249` — ошибка COM-компонента | `dotnet restore` или перезапусти VS |
 | `.msix` не создаётся | Проверь, что выбрана платформа x64, а не AnyCPU |
 | Сертификат не подписан | VS автоматически генерирует тестовый — можно игнорировать для Dev |
