@@ -1,0 +1,14 @@
+<Application
+    x:Class="OpenClawClient.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+
+            <!-- Системный акцентный цвет -->
+            <SolidColorBrush x:Key="SystemAccentColor" Color="#5865F2" />
+            <SolidColorBrush x:Key="AccentButtonBackground" Color="#5865F2" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

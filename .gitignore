@@ -1,0 +1,12 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+
+# WinUI
+*.msix
+*.appxbundle
+*.cer
