@@ -80,7 +80,8 @@ public class MainViewModel : INotifyPropertyChanged
         _pollingService.NewAgentMessage += OnNewAgentMessage;
         _pollingService.NotificationRequested += OnNotificationRequested;
 
-        App.Current.Exit += OnAppExit;
+        // Закрытие — через Window.Closed (опционально, можно и так не подписываться)
+        App.Current.Exit += (s, e) => OnCleanup();
     }
 
     // ─── Observable Properties ───
@@ -383,7 +384,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private void OnAppExit(object? sender, Microsoft.UI.Xaml.ExitEventArgs e)
+    public void OnCleanup()
     {
         _pollingService.Stop();
         _globalCts.Cancel();

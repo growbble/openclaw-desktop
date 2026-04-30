@@ -36,6 +36,12 @@ public sealed partial class MainWindow : Window
             // Не критично если центрирование не удалось
         }
 
+        // Очистка ресурсов при закрытии
+        appWindow.Closing += (s, e) =>
+        {
+            App.ViewModel.OnCleanup();
+        };
+
         // Асинхронная проверка соединения при старте
         _ = App.ViewModel.CheckConnectionAsync();
     }
