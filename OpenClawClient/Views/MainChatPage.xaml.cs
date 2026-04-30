@@ -35,6 +35,14 @@ public sealed partial class MainChatPage : Page
                     : new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
             });
         }
+        else if (e.PropertyName == nameof(MainViewModel.Messages))
+        {
+            // Автоскролл вниз при новых сообщениях
+            App.DispatcherQueue?.TryEnqueue(() =>
+            {
+                MessageScroller.ChangeView(null, MessageScroller.ScrollableHeight, null);
+            });
+        }
     }
 
     private void OnSendClick(object sender, RoutedEventArgs e)

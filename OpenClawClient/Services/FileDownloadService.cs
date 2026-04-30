@@ -17,17 +17,18 @@ public class FileDownloadService : IDisposable
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".zip", ".rar", ".7z", ".gz", ".tar",
-        ".exe", ".msi",
         ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
         ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp",
         ".mp3", ".wav", ".ogg", ".flac", ".aac", ".wma",
         ".mp4", ".mov", ".avi", ".mkv", ".webm", ".flv",
         ".iso", ".dmg", ".pkg", ".deb", ".rpm", ".apk",
-        ".dll", ".bin", ".dat",
+        ".bin", ".dat",
         ".json", ".csv", ".xml", ".txt", ".log",
         ".py", ".js", ".ts", ".cs", ".go", ".rs", ".cpp", ".c", ".h", ".hpp",
         ".sql", ".yaml", ".yml", ".md",
-        ".bat", ".ps1", ".sh"
+        // Код и скрипты — не автоскачиваем (опасность XSS/exec)
+        // ".bat", ".ps1", ".sh" — убраны из авто-Download
+        // ".exe", ".msi", ".dll" — изначально были, но убраны как опасные
     };
 
     public FileDownloadService(ConfigService configService)
@@ -101,8 +102,13 @@ public class FileDownloadService : IDisposable
 
         try
         {
-            using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+            using var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cts.Token);
             response.EnsureSuccessStatusCode();
+
+            // Не следуем редиректам
+            if ((int)response.StatusCode >= 300 && (int)response.StatusCode < 400)
+                return null;
 
             // Проверка Content-Type — игнорируем HTML
             var contentType = response.Content.Headers.ContentType?.MediaType;
@@ -110,6 +116,12 @@ public class FileDownloadService : IDisposable
                 return null;
 
             var contentLength = response.Content.Headers.ContentLength ?? -1;
+
+            // Проверка максимального размера
+            var maxSize = _configService.Config.MaxAutoDownloadSize;
+            if (maxSize > 0 && contentLength > maxSize)
+                return null;
+
             await using var stream = await response.Content.ReadAsStreamAsync();
             await using var fileStream = File.Create(savePath);
             await stream.CopyToAsync(fileStream);

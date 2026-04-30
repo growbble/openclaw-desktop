@@ -141,4 +141,9 @@ public class PollingService : IDisposable
         Stop();
         GC.SuppressFinalize(this);
     }
+
+    ~PollingService()
+    {
+        Stop();
+    }
 }

@@ -56,6 +56,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly PollingService _pollingService;
     private readonly SemaphoreSlim _sendLock = new(1, 1);
     private readonly CancellationTokenSource _globalCts = new();
+    private bool _isDisposed;
 
     public MainViewModel(
         IOpenClawGatewayService gatewayService,
@@ -75,6 +76,8 @@ public class MainViewModel : INotifyPropertyChanged
 
         _pollingService.NewAgentMessage += OnNewAgentMessage;
         _pollingService.NotificationRequested += OnNotificationRequested;
+
+        App.Current.Exit += OnAppExit;
     }
 
     // ─── Observable Properties ───
@@ -172,6 +175,10 @@ public class MainViewModel : INotifyPropertyChanged
 
         if (!EnsureSession()) return;
 
+        // Захватываем сессию на время отправки — переключение во время отправки не сломает
+        var targetSession = _selectedSession;
+        if (targetSession == null) return;
+
         // Не даём отправить дважды одновременно
         if (!await _sendLock.WaitAsync(0))
             return;
@@ -199,7 +206,7 @@ public class MainViewModel : INotifyPropertyChanged
             StatusText = "⏳ Отправка...";
 
             var response = await _gatewayService.SendMessageAsync(
-                _selectedSession!.SessionId, text, _globalCts.Token);
+                targetSession.SessionId, text, _globalCts.Token);
 
             userMsg.Status = ChatMessage.DeliveryStatus.Delivered;
 
@@ -371,6 +378,15 @@ public class MainViewModel : INotifyPropertyChanged
         {
             _notificationService.ShowNotification("OpenClaw", message);
         }
+    }
+
+    private void OnAppExit(object? sender, Microsoft.UI.Xaml.ExitEventArgs e)
+    {
+        _pollingService.Stop();
+        _globalCts.Cancel();
+        _globalCts.Dispose();
+        _sendLock.Dispose();
+        _sessionService.SaveAll();
     }
 
     private void OnSessionChanged()
